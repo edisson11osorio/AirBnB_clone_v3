@@ -8,7 +8,7 @@ from models import storage, state
 
 
 @app_views.route('/states', methods=['GET'], strict_slashes=False)
-def list_all_states():
+def get_states():
     """Retrieves the list of all State objects"""
     all_states_list = []
     for i in storage.all("State").values():
@@ -17,7 +17,7 @@ def list_all_states():
 
 
 @app_views.route('/states/<state_id>', methods=['GET'], strict_slashes=False)
-def state_id(state_id=None):
+def stateId(state_id=None):
     """Retrieves a State object"""
     stateId_obj = storage.get("State", state_id)
     if state_id is None:
@@ -27,10 +27,10 @@ def state_id(state_id=None):
 
 @app_views.route('/states/<state_id>', methods=['DELETE'],
                  strict_slashes=False)
-def delete_state_id(state_id=None):
+def delete_stateId(state_id=None):
     """Deletes a State object"""
     stateId_obj = storage.get("State", state_id)
-    if state_id is None:
+    if stateId_obj is None:
         abort(404)
     storage.delete(stateId_obj)
     storage.save()
@@ -40,19 +40,19 @@ def delete_state_id(state_id=None):
 @app_views.route('/states', methods=['POST'], strict_slashes=False)
 def create_state():
     """Creates a State object"""
-    state_obj = request.get_json()
-    if state_obj is None:
+    state_dict = request.get_json()
+    if state_dict is None:
         abort(400, "Not a JSON")
-    elif "name" not in state_obj.keys():
+    elif "name" not in state_dict.keys():
         abort(400, "Missing name")
-    new_state = state.State(**state_obj)
+    new_state = state.State(**state_dict)
     storage.new(new_state)
     storage.save()
     return jsonify(new_state.to_dict()), 201
 
 
 @app_views.route('/states/<state_id>', methods=['PUT'], strict_slashes=False)
-def update_state_id(state_id=None):
+def update_stateId(state_id=None):
     """Updates a State object"""
     obj_stateId = storage.get("State", state_id)
     if obj_stateId is None:
