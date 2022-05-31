@@ -5,15 +5,15 @@
 from flask import jsonify, abort, request
 from api.v1.views import app_views
 from models import storage
-from models.user import user
+from models.user import user, User
 
 
 @app_views.route('/users', methods=['GET'], strict_slashes=False)
 def get_users():
     """Retrieves all users"""
     all_users_list = []
-    for i in storage.all("User").values():
-        all_users_list.append(i.to_dict())
+    for user in storage.all("User").values():
+        all_users_list.append(user.to_dict())
     return jsonify(all_users_list)
 
 
@@ -49,7 +49,7 @@ def create_user():
         abort(400, "Missing email")
     elif "password" not in user_dict.keys():
         abort(400, "Missing password")
-    new_user = user.User(**user_dict)
+    new_user = User(**user_dict)
     storage.new(new_user)
     storage.save()
     return jsonify(new_user.to_dict()), 201
