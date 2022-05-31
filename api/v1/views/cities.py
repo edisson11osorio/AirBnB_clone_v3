@@ -56,6 +56,7 @@ def create_city(state_id):
         city_dict['state_id'] = state_id
         new_city = City(**city_dict)
         new_city.save()
+        storage.save()
         return jsonify(new_city.to_dict()), 201
     abort(404)
 
@@ -63,12 +64,15 @@ def create_city(state_id):
 @app_views.route('/cities/<city_id>', methods=['PUT'], strict_slashes=False)
 def update_cityId(city_id=None):
     """Updates a City object"""
+    cityId_to_update = storage.get('City', city_id)
+    if cityId_to_update is None:
+        abort(404)
     cityId_dict = request.get_json()
     if cityId_dict is None:
-        return (jsonify({'error': 'Not a JSON'}), 400)
-    cityId_to_update = storage.get('City', city_id)
-    if cityId_to_update is not None:
-        cityId_to_update.name = cityId_dict['name']
-        cityId_to_update.save()
-        return jsonify(cityId_to_update.to_dict()), 200
-    abort(400)
+        abort(400, "Not a JSON")
+    for k, v in cityId_dict.items():
+        if k in ['id', 'state_id', 'created_at', 'updated_at']:
+            pass
+        setattr(cityId_to_update, k, v)
+    storage.save()
+    return jsonify(cityId_to_update.to_dict()), 200
